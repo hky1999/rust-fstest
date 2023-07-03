@@ -7,9 +7,9 @@ pub struct Config {
 impl Config {
     pub fn parse() -> Self {
         Config {
-            rounds: 100,
+            rounds: 1000,
             bytes: 4096,
-            verbose: true,
+            verbose: false,
         }
     }
     pub fn rounds_and_bytes(&self) -> (u32, u64) {

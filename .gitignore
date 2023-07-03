@@ -2,3 +2,4 @@ target/
 Cargo.lock
 *disk.img
 .vscode/
+*.bin

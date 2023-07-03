@@ -94,7 +94,7 @@ fn file_test(round: u32, bytes: usize) -> (u128, u128, u128, u128, u128) {
         println!("file test round {}", round);
     }
 
-    use unishyper::fs::Path;
+    use unishyper::fs::{self, Path};
 
     let path = Path::new(FILE_NAME);
 
@@ -214,7 +214,7 @@ fn files_test(rounds: u32, bytes: usize) {
     );
 }
 
-#[no_mangle]
+#[cfg_attr(feature = "unishyper-alloc", no_mangle)]
 fn main() {
     let args = config::Config::parse();
     if args.verbose() {
@@ -227,5 +227,8 @@ fn main() {
         rounds, bytes
     );
 
-    files_test(rounds, bytes as usize)
+    files_test(rounds, bytes as usize);
+
+    #[cfg(feature = "unishyper-alloc")]
+    exit()
 }
