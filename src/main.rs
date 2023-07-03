@@ -1,5 +1,8 @@
 #![feature(core_intrinsics)]
-#![cfg_attr(not(feature = "std"), no_std)]
+#![feature(format_args_nl)]
+// #![cfg_attr(feature = "unishyper-alloc", format_args_nl)]
+#![cfg_attr(feature = "unishyper-alloc", no_std)]
+#![cfg_attr(feature = "unishyper-alloc", no_main)]
 
 #[cfg(target_os = "shyper")]
 use unishyper as _;
@@ -7,11 +10,16 @@ use unishyper as _;
 #[cfg(feature = "unishyper-alloc")]
 use unishyper::*;
 
+#[cfg(feature = "unishyper-alloc")]
+extern crate alloc;
+
+#[cfg(feature = "unishyper-alloc")]
+use alloc::vec;
 
 use core::sync::atomic::{AtomicBool, Ordering};
 
 cfg_if::cfg_if! {
-if #[cfg(feature = "std")] {
+if #[cfg(any(feature = "std", feature = "unishyper-std"))] {
 use std::io::{Read, Write};
 use std::time::Instant;
 use std::fs;
@@ -35,6 +43,7 @@ use statistician::Statistician;
 const FILE_NAME: &str = "test_file";
 static VERBOSE: AtomicBool = AtomicBool::new(false);
 
+#[cfg(not(feature = "unishyper-alloc"))]
 fn file_test(round: u32, bytes: usize) -> (u128, u128, u128, u128, u128) {
     if VERBOSE.load(Ordering::Relaxed) {
         println!("file test round {}", round);
@@ -77,6 +86,61 @@ fn file_test(round: u32, bytes: usize) -> (u128, u128, u128, u128, u128) {
     let remove_time = Instant::now().duration_since(start).as_nanos();
 
     (create_time, open_time, write_time, read_time, remove_time)
+}
+
+#[cfg(feature = "unishyper-alloc")]
+fn file_test(round: u32, bytes: usize) -> (u128, u128, u128, u128, u128) {
+    if VERBOSE.load(Ordering::Relaxed) {
+        println!("file test round {}", round);
+    }
+
+    use unishyper::fs::Path;
+
+    let path = Path::new(FILE_NAME);
+
+    /* create phase */
+    let start = current_ns();
+    let f = fs::File::create(&path)
+        .unwrap_or_else(|err| panic!("failed to create file {}, err {}", FILE_NAME, err));
+    let create_time = current_ns() - start;
+
+    /* write phase */
+    let write_buf = vec![0xf as u8; bytes];
+    let start = current_ns();
+    f.write(write_buf.as_slice())
+        .unwrap_or_else(|err| panic!("failed to write to file {}, err {}", FILE_NAME, err));
+    let write_time = current_ns() - start;
+
+    drop(f);
+
+    /* open phase */
+    let start = current_ns();
+    let f = fs::File::open(&path)
+        .unwrap_or_else(|err| panic!("failed to create file {}, err {}", FILE_NAME, err));
+    let open_time = current_ns() - start;
+
+    /* read phase */
+    let mut read_buf = vec![0; bytes];
+    let start = current_ns();
+    f.read(&mut read_buf)
+        .unwrap_or_else(|err| panic!("failed to read from file {}, err {}", FILE_NAME, err));
+    let read_time = current_ns() - start;
+
+    assert_eq!(write_buf, read_buf, "file write/read failed");
+
+    /* remove phase */
+    let start = current_ns();
+    fs::unlink(&path)
+        .unwrap_or_else(|err| panic!("failed to remove file {}, err {}", FILE_NAME, err));
+    let remove_time = current_ns() - start;
+
+    (
+        create_time as u128,
+        open_time as u128,
+        write_time as u128,
+        read_time as u128,
+        remove_time as u128,
+    )
 }
 
 fn files_test(rounds: u32, bytes: usize) {
@@ -150,6 +214,7 @@ fn files_test(rounds: u32, bytes: usize) {
     );
 }
 
+#[no_mangle]
 fn main() {
     let args = config::Config::parse();
     if args.verbose() {

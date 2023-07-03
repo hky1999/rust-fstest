@@ -9,7 +9,7 @@ impl Config {
         Config {
             rounds: 100,
             bytes: 4096,
-            verbose: false,
+            verbose: true,
         }
     }
     pub fn rounds_and_bytes(&self) -> (u32, u64) {

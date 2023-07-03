@@ -10,7 +10,10 @@ CARGO_FLAGS =
 endif
 
 # Target directory.
-KERNEL := target/${ARCH}-unknown-shyper/${PROFILE}/rustfstest
+KERNEL_STD := target/${ARCH}-unknown-shyper/${PROFILE}/rustfstest
+
+TARGET_CFG := ../unishyper/cfg/${ARCH}${MACHINE}.json
+KERNEL_ALLOC := target/${ARCH}${MACHINE}/${PROFILE}/rustfstest
 
 # Arch-specific tools
 OBJCOPY := rust-objcopy
@@ -22,12 +25,14 @@ linux:
 	cargo build ${CARGO_FLAGS}
 
 build_unishyper_std:
-	cargo +stage1 build -Zbuild-std=std,panic_unwind -Zbuild-std-features=compiler-builtins-mem --target ${ARCH}-unknown-shyper ${CARGO_FLAGS} --features "std, unishyper-std"
-	${OBJCOPY} ${KERNEL} -O binary ${KERNEL}.bin
-	${OBJDUMP} --demangle -d ${KERNEL} > ${KERNEL}.asm
+	cargo +stage1 build -Zbuild-std=std,panic_unwind -Zbuild-std-features=compiler-builtins-mem --target ${ARCH}-unknown-shyper ${CARGO_FLAGS} --features "unishyper-std,fat,qemu"
+	${OBJCOPY} ${KERNEL_STD} -O binary ${KERNEL_STD}_unishyperstd.bin
+	${OBJDUMP} --demangle -d ${KERNEL_STD} > ${KERNEL_STD}_unishyperstd.asm
 
 build_unishyper_alloc:
-	cargo build ${CARGO_FLAGS}
+	cargo build --target ${TARGET_CFG} -Z build-std=core,alloc -Zbuild-std-features=compiler-builtins-mem ${CARGO_FLAGS}
+	${OBJCOPY} ${KERNEL_ALLOC} -O binary ${KERNEL_ALLOC}_unishyperalloc.bin
+	${OBJDUMP} --demangle -d ${KERNEL_ALLOC} > ${KERNEL_ALLOC}_unishyperalloc.asm
 
 QEMU_DISK_OPTIONS := -drive file=disk.img,if=none,format=raw,id=x0 \
 					 -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0 \
@@ -39,13 +44,19 @@ unishyper_std: build_unishyper_std
 	sudo qemu-system-aarch64 -M virt -cpu cortex-a53 \
 		${QEMU_COMMON_OPTIONS} \
 		${QEMU_DISK_OPTIONS} \
-		-kernel ${KERNEL}.bin -s
+		-kernel ${KERNEL_STD}_unishyperstd.bin -s
+
+unishyper_alloc: build_unishyper_alloc
+	sudo qemu-system-aarch64 -M virt -cpu cortex-a53 \
+		${QEMU_COMMON_OPTIONS} \
+		${QEMU_DISK_OPTIONS} \
+		-kernel ${KERNEL_ALLOC}_unishyperalloc.bin -s
 
 debug: build
 	sudo qemu-system-aarch64 -M virt -cpu cortex-a53 \
 		${QEMU_COMMON_OPTIONS} \
 		${QEMU_DISK_OPTIONS} \
-		-kernel ${KERNEL}.bin -s -S
+		-kernel ${KERNEL_STD}.bin -s -S
 
 clean:
 	-cargo clean
