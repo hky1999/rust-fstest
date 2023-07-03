@@ -1,32 +1,14 @@
 #![feature(core_intrinsics)]
-#![cfg_attr(not(feature = "std"), no_std)]
-
-#[cfg(target_os = "shyper")]
-use unishyper as _;
-
-#[cfg(feature = "unishyper-alloc")]
-use unishyper::*;
-
 
 use core::sync::atomic::{AtomicBool, Ordering};
 
-cfg_if::cfg_if! {
-if #[cfg(feature = "std")] {
 use std::io::{Read, Write};
 use std::time::Instant;
 use std::fs;
-}
-}
 
-cfg_if::cfg_if! {
-if #[cfg(target_os = "linux")] {
 use clap::Parser;
+
 mod config;
-} else {
-#[path = "config_nostd.rs"]
-mod config;
-}
-}
 
 mod statistician;
 
@@ -53,6 +35,7 @@ fn file_test(round: u32, bytes: usize) -> (u128, u128, u128, u128, u128) {
         .unwrap_or_else(|err| panic!("failed to write to file {}, err {}", FILE_NAME, err));
     let write_time = Instant::now().duration_since(start).as_nanos();
 
+    /* close file */
     drop(f);
 
     /* open phase */
