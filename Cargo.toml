@@ -5,30 +5,14 @@ edition = "2021"
 authors = ["hukeyang <hky1999@buaa.edu.cn>"]
 description = "A Rust-based simple fs benchmark, refer to https://github.com/LLNL/mdtest.git"
 
-[target.'cfg(target_os = "shyper")'.dependencies]
-unishyper = { path = "../unishyper", default-features = false }
-
 [target.'cfg(target_os = "linux")'.dependencies]
 clap = { version = "4.1", features = ["derive"], optional = true }
 
 
 [dependencies]
 cfg-if = "1.0.0"
-unishyper = { path = "../unishyper", default-features = false, optional = true }
-# clap = { version = "4.1", features = ["derive"], optional = true }
 
 [features]
 default = ["std"]
-unishyper-alloc = [
-    "unishyper/alloc",
-    "unishyper/fs",
-    "unishyper/fat",
-    "unishyper/qemu",
-]
-unishyper-std = [
-    "unishyper/fs",
-    "unishyper/fat",
-    "unishyper/std",
-    "unishyper/qemu",
-]
 std = ["dep:clap"]
+alloc = []
