@@ -7,7 +7,7 @@ pub struct Config {
     #[arg(
         long = "rounds",
         short = 'r',
-        default_value = "10",
+        default_value = "1000",
         help = "number of rounds the test will run"
     )]
     pub rounds: u32,

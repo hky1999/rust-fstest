@@ -10,6 +10,7 @@ description = "A Rust-based simple fs benchmark, refer to https://github.com/LLN
 
 [target.'cfg(target_os = "linux")'.dependencies]
 clap = { version = "4.1", features = ["derive"], optional = true }
+libc = { version = "0.2", optional = true}
 
 
 [dependencies]
@@ -19,8 +20,9 @@ unishyper = { path = "../unishyper", default-features = false, optional = true }
 # clap = { version = "4.1", features = ["derive"], optional = true }
 
 [features]
-# default = ["std"]
-default = ["unishyper-alloc", "fat", "qemu"]
+default = ["std"]
+# default = ["unishyper-alloc", "fat", "qemu"]
+# default = ["unishyper-std", "fat", "qemu"]
 unishyper-alloc = [
     "unishyper/alloc",
     "unishyper/fs",
@@ -29,6 +31,7 @@ unishyper-alloc = [
 unishyper-std = [
     "unishyper/std",
     "unishyper/fs",
+    "unishyper/serial",
 ]
 unilib = [
     "unishyper/unilib",
@@ -42,4 +45,4 @@ qemu = [
 shyper = [
     "unishyper/shyper",
 ]
-std = ["dep:clap"]
+std = ["dep:clap","dep:libc"]
