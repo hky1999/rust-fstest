@@ -42,7 +42,7 @@ fn file_test(round: u32, bytes: usize) -> (u128, u128, u128, u128, u128) {
     #[cfg(target_os = "linux")]
     let mut f = OpenOptions::new()
         .write(true)
-        .custom_flags(libc::O_SYNC)
+        // .custom_flags(libc::O_SYNC)
         .open(FILE_NAME)
         .expect("Can't open for write");
 
@@ -67,7 +67,7 @@ fn file_test(round: u32, bytes: usize) -> (u128, u128, u128, u128, u128) {
     #[cfg(target_os = "linux")]
     let mut f = OpenOptions::new()
         .read(true)
-        .custom_flags(libc::O_SYNC)
+        // .custom_flags(libc::O_SYNC)
         .open(FILE_NAME)
         .expect("Can't open for write");
 

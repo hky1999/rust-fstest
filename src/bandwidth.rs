@@ -39,7 +39,7 @@ pub fn files_bandwidth_test(rounds: u32, bytes: usize) {
             .write(true)
             .read(true)
             .create(true)
-            .custom_flags(libc::O_SYNC)
+            // .custom_flags(libc::O_SYNC)
             .open(FILE_NAME)
             .expect("Can't open");
 
@@ -65,7 +65,7 @@ pub fn files_bandwidth_test(rounds: u32, bytes: usize) {
             .write(true)
             .read(true)
             .create(true)
-            .custom_flags(libc::O_SYNC)
+            // .custom_flags(libc::O_SYNC)
             .open(FILE_NAME)
             .expect("Can't open");
 
@@ -106,7 +106,7 @@ pub fn files_bandwidth_test(rounds: u32, bytes: usize) {
             .write(true)
             .read(true)
             .create(true)
-            .custom_flags(libc::O_SYNC)
+            // .custom_flags(libc::O_SYNC)
             .open(FILE_NAME)
             .expect("Can't open");
 
@@ -132,7 +132,7 @@ pub fn files_bandwidth_test(rounds: u32, bytes: usize) {
             .write(true)
             .read(true)
             .create(true)
-            .custom_flags(libc::O_SYNC)
+            // .custom_flags(libc::O_SYNC)
             .open(FILE_NAME)
             .expect("Can't open");
 
