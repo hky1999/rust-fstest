@@ -15,34 +15,10 @@ libc = { version = "0.2", optional = true}
 
 [dependencies]
 cfg-if = "1.0.0"
-unishyper = { git = "https://gitee.com/unishyper/unishyper", default-features = false, optional = true }
+# unishyper = { git = "https://gitee.com/unishyper/unishyper", default-features = false, optional = true }
 # micromath = "2.0.0"
 # clap = { version = "4.1", features = ["derive"], optional = true }
 
 [features]
 default = ["std"]
-# default = ["unishyper-alloc", "fat", "qemu"]
-# default = ["unishyper-std", "fat", "qemu"]
-unishyper-alloc = [
-    "unishyper/alloc",
-    "unishyper/fs",
-    "unishyper/serial",
-]
-unishyper-std = [
-    "unishyper/std",
-    "unishyper/fs",
-    "unishyper/serial",
-]
-unilib = [
-    "unishyper/unilib",
-]
-fat = [
-    "unishyper/fat",
-]
-qemu = [
-    "unishyper/qemu",
-]
-shyper = [
-    "unishyper/shyper",
-]
 std = ["dep:clap","dep:libc"]
